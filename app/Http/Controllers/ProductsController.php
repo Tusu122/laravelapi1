@@ -13,7 +13,7 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        $data = Products::orderById('id','ASC')->get();
+        $data = Products::OrderBy('id','ASC')->get();
         return ['data' => $data];
     }
 
@@ -34,8 +34,9 @@ class ProductsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Products $product)
+    public function show()
     {
+        $product = Products::OrderBy('id','ASC');
         return response()->json([
             'status' => 200,
             'product' => $product
