@@ -34,9 +34,8 @@ class ProductsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show()
+    public function show(Products $product)
     {
-        $product = Products::OrderBy('id','ASC');
         return response()->json([
             'status' => 200,
             'product' => $product
