@@ -13,7 +13,7 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        $data = Products::get();
+        $data = Products::orderById('id','ASC')->get();
         return ['data' => $data];
     }
 
