@@ -26,7 +26,8 @@ class UpdateProductsRequest extends FormRequest
             'price'=>'required',
             'qty'=>'required',
             'description'=>'required',
-            'image'=>'required'
+            'image'=>'required',
+            'status'=>'required'
         ];
     }
 }
