@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Products;
 use App\Http\Requests\StoreProductsRequest;
 use App\Http\Requests\UpdateProductsRequest;
-
 class ProductsController extends Controller
 {
     /**
@@ -13,21 +12,49 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        $data = Products::OrderBy('id','ASC')->get();
+        $data = Products::OrderBy('id', 'ASC')->get();
         return ['data' => $data];
     }
 
     /**
      * Store a newly created resource in storage.
      */
+    // App/Http/Controllers/ProductController.php
+
+
     public function store(StoreProductsRequest $request)
     {
-        $product = Products::create($request->validated());
+        // Validate the request (handled by StoreProductsRequest)
+        $validated = $request->validated();
 
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Generate unique filename
+            $filename = time() . '_' . $request->file('image')->getClientOriginalName();
+
+            // Save image to public/uploads/
+            $path = $request->file('image')->move(public_path('uploads'), $filename);
+
+            // Add image path to validated data
+            $validated['image'] = '/uploads/' . $filename;
+        }
+
+        // Create the product
+        $product = Products::create($validated);
+
+        // Return response with full image URL
         return response()->json([
             'status' => 200,
             'message' => 'Product created successfully',
-            'product' => $product
+            'product' => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'qty' => $product->qty,
+                'description' => $product->description,
+                'status' => $product->status,
+                'image' => $product->image ? url($product->image) : null, // Full URL
+            ],
         ], 201);
     }
 
