@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Products;
 use App\Http\Requests\StoreProductsRequest;
 use App\Http\Requests\UpdateProductsRequest;
+
 class ProductsController extends Controller
 {
     /**
@@ -103,14 +104,47 @@ class ProductsController extends Controller
             ], 404);
         }
 
-        $product->update($request->validated());
+        $validated = $request->validated();
+
+        // FORCE status to always be 1
+        $validated['status'] = 1;
+
+        // Handle image update
+        if ($request->hasFile('image')) {
+
+            // Delete old image (if exists)
+            if ($product->image && file_exists(public_path($product->image))) {
+                unlink(public_path($product->image));
+            }
+
+            // Generate new filename
+            $filename = time() . '_' . $request->file('image')->getClientOriginalName();
+
+            // Move image to public/uploads
+            $request->file('image')->move(public_path('uploads'), $filename);
+
+            // Save new image path
+            $validated['image'] = '/uploads/' . $filename;
+        }
+
+        // Update product
+        $product->update($validated);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Product updated successfully',
-            'product' => $product
+            'product' => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'qty' => $product->qty,
+                'description' => $product->description,
+                'status' => 1,
+                'image' => $product->image ? url($product->image) : null,
+            ]
         ], 200);
     }
+
 
     /**
      * Remove the specified resource from storage.
