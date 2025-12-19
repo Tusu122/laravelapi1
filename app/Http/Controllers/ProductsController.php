@@ -13,7 +13,8 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        $data = Products::OrderBy('id', 'ASC')->get();
+        $data = Products::OrderBy('id', 'DESC')
+        ->where('status',1)->get();
         return ['data' => $data];
     }
 
